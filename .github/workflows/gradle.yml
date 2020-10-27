@@ -30,8 +30,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ job }}
-        release_name: Release ${{ job }}
+        tag_name: ${{ job.container.id }}
+        release_name: Release ${{ job.container.id }}
         draft: false
         prerelease: true
     - name: Upload Release Asset
