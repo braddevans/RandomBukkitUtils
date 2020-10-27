@@ -26,6 +26,7 @@ jobs:
         ./gradlew jar
       id: build_project
     - name: Generate build number
+      id: buildnumber
       uses: einaregilsson/build-number@v2 
       with:
         token: ${{secrets.github_token}}
@@ -35,8 +36,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: $BUILD_NUMBER
-        release_name: Release $BUILD_NUMBER
+        tag_name: ${{ steps.buildnumber.outputs.build_number }}
+        release_name: Release ${{ steps.buildnumber.outputs.build_number }}
         draft: false
         prerelease: true
     - name: Upload Release Asset
