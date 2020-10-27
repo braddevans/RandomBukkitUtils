@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: get shortsha
+    - name: get shortsha
       id: vars
       run: |
         echo ::set-output name=sha_short::$(git rev-parse --short=4 ${{ github.sha }})
