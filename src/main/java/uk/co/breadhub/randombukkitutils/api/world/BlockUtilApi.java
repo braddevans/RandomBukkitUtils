@@ -5,5 +5,5 @@ import org.bukkit.entity.Player;
 
 public interface BlockUtilApi {
 
-		Block getTargetBlock(final Player player);
+    Block getTargetBlock(final Player player);
 }
