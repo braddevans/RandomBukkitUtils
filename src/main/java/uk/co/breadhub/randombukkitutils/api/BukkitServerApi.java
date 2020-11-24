@@ -61,4 +61,17 @@ public interface BukkitServerApi {
      * @return
      */
     Player getPlayerOnlineShort(String playerstr);
+
+    /**
+     * get the server version
+     * if it is not 2.2 it doesnt have uuid support
+     */
+    double getVersion();
+
+    /**
+     * get offline player by uuid
+     * @param uniqueID
+     * @return
+     */
+    OfflinePlayer getOfflinePlayer(UUID uniqueID);
 }

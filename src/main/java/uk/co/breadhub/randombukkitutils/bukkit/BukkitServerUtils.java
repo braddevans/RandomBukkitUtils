@@ -1,14 +1,32 @@
 package uk.co.breadhub.randombukkitutils.bukkit;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
+import uk.co.breadhub.randombukkitutils.api.MojangApi;
 
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class BukkitServerUtils implements BukkitServerApi {
+
+    private static MojangApi ma = new MojangUtils();
+    private final boolean minecraft17 = Bukkit.getServer().getVersion().contains("1.7"),
+            minecraft16 = Bukkit.getServer().getVersion().contains("1.6"),
+            minecraft15 = Bukkit.getServer().getVersion().contains("1.5");
+
+    @Override
+    public double getVersion() {
+        if (minecraft17) { return 1.7; }
+        if (minecraft16) { return 1.6; }
+        if (minecraft15) { return 1.5; }
+        else {
+            return 2.2; //1.12 = 2.2
+        }
+        //I swear to whatever if you use 1.4, you're screwed.
+    }
 
     @Override
     public Collection<? extends Player> getOnlinePlayers() {
@@ -50,6 +68,27 @@ public class BukkitServerUtils implements BukkitServerApi {
     public OfflinePlayer getOfflinePlayerByName(String name) {
         return Bukkit.getServer().getOfflinePlayer(name);
     }
+
+    @Override
+    public OfflinePlayer getOfflinePlayer(UUID uniqueID) {
+        if (uniqueID == null) {
+            return null;
+        }
+        if (getVersion() == 2.2) {
+            return Bukkit.getServer().getOfflinePlayer(uniqueID);
+        }
+        else {
+            String name = null;
+            try {
+                name = ma.getPlayerFromUUID(uniqueID);
+            } catch (UnirestException e) {
+                e.printStackTrace();
+            }
+            Bukkit.getOfflinePlayer(name);
+        }
+        return null;
+    }
+
 
     @Override
     public boolean isFakePlayer(String username) {

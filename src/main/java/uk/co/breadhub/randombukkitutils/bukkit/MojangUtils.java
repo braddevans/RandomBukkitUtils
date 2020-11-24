@@ -1,11 +1,16 @@
 package uk.co.breadhub.randombukkitutils.bukkit;
 
+import com.google.gson.JsonObject;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import uk.co.breadhub.randombukkitutils.api.MojangApi;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MojangUtils implements MojangApi {
@@ -88,5 +93,31 @@ public class MojangUtils implements MojangApi {
     @Override
     public HashMap<String, UUID> getUUIDCache() {
         return UUIDCache;
+    }
+
+    /**
+     * <h1>Get Name from prev names</h1>
+     *
+     * @param uniqueID
+     * @return
+     * @throws UnirestException
+     */
+    @Override
+    public String getPlayerFromUUID(UUID uniqueID) throws UnirestException {
+        String name = UUIDCache.entrySet().stream()
+                               .filter(e -> e.getValue().equals(uniqueID))
+                               .map(Map.Entry::getKey)
+                               .findFirst()
+                               .orElse(null);
+        if (name == null){
+            JsonNode body = Unirest.get("https://api.mojang.com/user/profiles/" + uniqueID + "/names")
+                                   .asJson()
+                                   .getBody();
+            JSONArray names = body.getArray();
+            JsonObject object = (JsonObject) names.get(0);
+            name = object.get("name").toString();
+            UUIDCache.put(name, uniqueID);
+        }
+        return name;
     }
 }
