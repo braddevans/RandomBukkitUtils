@@ -1,6 +1,10 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+// Gradle Configs
+apply from: 'env.gradle'
 
 group = 'uk.co.breadhub'
 version = '1.0-SNAPSHOT'
@@ -10,6 +14,7 @@ targetCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    google()
     maven {
         name = 'spigotmc-repo'
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
@@ -30,6 +35,25 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+
+    repositories {
+        maven {
+            url 'https://nexus.breadhub.co.uk/repository/maven-' + (project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases') + '/'
+            credentials {
+                username project.nexus_username
+                password project.nexus_password
+            }
+        }
+    }
+}
+
 
 processResources {
     from(sourceSets.main.resources.srcDirs) {
