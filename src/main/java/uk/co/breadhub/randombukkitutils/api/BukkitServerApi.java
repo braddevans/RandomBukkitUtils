@@ -41,4 +41,24 @@ public interface BukkitServerApi {
      * @return
      */
     boolean isFakePlayer(String username);
+
+    /**
+     * get player from name short e.g.
+     * <code>
+     *     getPlayerShort("bradd");
+     * </code>
+     * @param playerstr
+     * @return
+     */
+    Player getPlayerShort(String playerstr);
+
+    /**
+     * get player that is online from name short e.g.
+     * <code>
+     *     getPlayerOnlineShort("bradd");
+     * </code>
+     * @param playerstr
+     * @return
+     */
+    Player getPlayerOnlineShort(String playerstr);
 }

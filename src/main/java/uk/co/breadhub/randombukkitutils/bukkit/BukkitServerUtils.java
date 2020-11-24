@@ -6,10 +6,7 @@ import org.bukkit.entity.Player;
 import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 public class BukkitServerUtils implements BukkitServerApi {
 
@@ -27,6 +24,21 @@ public class BukkitServerUtils implements BukkitServerApi {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+    public static OfflinePlayer[] getOfflinePlayers() {
+        try {
+            Method method = Bukkit.class.getDeclaredMethod("getOfflinePlayers");
+            if (method.getReturnType() != OfflinePlayer[].class) {
+                return Bukkit.getOfflinePlayers();
+            }
+            else {
+                return (OfflinePlayer[]) method.invoke(null);
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -51,5 +63,65 @@ public class BukkitServerUtils implements BukkitServerApi {
             default:
                 return false;
         }
+    }
+
+    /**
+     * -========================================-
+     * <h1>Get player by short name</h1>
+     * <p>
+     * Use a Java 8 stream to parse through offline players
+     * to get the player object
+     * </p>
+     * -========================================-
+     *
+     * @param playerstr
+     *
+     * @return
+     */
+    @Override
+    public Player getPlayerShort(String playerstr) {
+        final Player[] player = {null};
+
+        try {
+            Arrays.stream(Objects.requireNonNull(getOfflinePlayers())).forEach(oplayer -> {
+                if (oplayer.getName().toLowerCase().contains(playerstr.toLowerCase())) {
+                    player[0] = oplayer.getPlayer();
+                }
+            });
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+        }
+
+        return player[0];
+    }
+
+    /**
+     * -========================================-
+     * <h1>Get player by short name</h1>
+     * <p>
+     * Use a Java 8 stream to parse through offline players
+     * to get the player object
+     * </p>
+     * -========================================-
+     *
+     * @param playerstr
+     *
+     * @return
+     */
+    @Override
+    public Player getPlayerOnlineShort(String playerstr) {
+        final Player[] player = {null};
+
+        try {
+            getOnlinePlayers().forEach(oplayer -> {
+                if (oplayer.getName().toLowerCase().contains(playerstr.toLowerCase())) {
+                    player[0] = oplayer.getPlayer();
+                }
+            });
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+        }
+
+        return player[0];
     }
 }
