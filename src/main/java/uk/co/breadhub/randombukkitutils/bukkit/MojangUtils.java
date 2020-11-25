@@ -4,10 +4,14 @@ import com.google.gson.JsonObject;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
 import uk.co.breadhub.randombukkitutils.api.MojangApi;
+import uk.co.breadhub.randombukkitutils.api.VersionUtilAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +19,7 @@ import java.util.UUID;
 
 public class MojangUtils implements MojangApi {
     private static final HashMap<String, UUID> UUIDCache = new HashMap<>();
+    private static BukkitServerApi bsa = new BukkitServerUtils();
     private static final JSONParser parser = new JSONParser();
 
     /**
@@ -119,5 +124,67 @@ public class MojangUtils implements MojangApi {
             UUIDCache.put(name, uniqueID);
         }
         return name;
+    }
+
+    /**
+     * get uuid from username
+     *
+     * @param username
+     * @return
+     */
+    @Override
+    public UUID getUUID(String username) {
+        UUID uuid = UUIDCache.get(username);
+        if (uuid != null) {
+            UUIDCache.put(username, uuid);
+            return uuid;
+        }
+        try {
+            uuid = parseUUID(getUUIDOfUsername(username).toString());
+            UUIDCache.put(username, uuid);
+            return uuid;
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * get uuid from offlineplayer
+     *
+     * @param p
+     * @return
+     */
+    @Override
+    public UUID getUUID(OfflinePlayer p) {
+        if (bsa.getVersion() >= 1.7) {
+            try {
+                return (p.getUniqueId());
+            } catch (NoSuchMethodError e) {
+                return getUUID(p.getName());
+            }
+        }
+        else {
+            return getUUID(p.getName());
+        }
+    }
+
+    /**
+     * get uuid from player Object
+     *
+     * @param p
+     * @return
+     */
+    @Override
+    public UUID getUUID(Player p) {
+        if (bsa.getVersion() >= 1.7) {
+            try {
+                return (p.getUniqueId());
+            } catch (NoSuchMethodError e) {
+                return getUUID(p.getName());
+            }
+        }
+        else {
+            return getUUID(p.getName());
+        }
     }
 }
