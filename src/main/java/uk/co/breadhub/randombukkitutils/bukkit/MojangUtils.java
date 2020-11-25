@@ -81,8 +81,8 @@ public class MojangUtils implements MojangApi {
             uuid = parseUUID(jsonObject.get("id").toString());
             UUIDCache.put(username, uuid);
             return uuid;
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         return null;
     }
