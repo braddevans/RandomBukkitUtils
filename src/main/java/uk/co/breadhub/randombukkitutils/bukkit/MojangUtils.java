@@ -6,12 +6,11 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import com.google.gson.JsonArray;
 import org.json.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
 import uk.co.breadhub.randombukkitutils.api.MojangApi;
-import uk.co.breadhub.randombukkitutils.api.VersionUtilAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +75,7 @@ public class MojangUtils implements MojangApi {
         // else
         // ping mojang for uuid and place it into the cache
         try {
-            uuid = parseUUID((String) ((JSONObject) parser.parse(Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + username).asString().getBody())).get("id"));
+            uuid = parseUUID(((JsonObject) parser.parse(Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + username).asString().getBody())).get("id").toString());
             UUIDCache.put(username, uuid);
             return uuid;
         } catch (Exception ignored) {
