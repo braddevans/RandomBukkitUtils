@@ -1,12 +1,13 @@
 package uk.co.breadhub.randombukkitutils.bukkit;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import com.google.gson.JsonArray;
 import org.json.JSONArray;
 import org.json.simple.parser.JSONParser;
 import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
@@ -20,6 +21,7 @@ public class MojangUtils implements MojangApi {
     private static final HashMap<String, UUID> UUIDCache = new HashMap<>();
     private static BukkitServerApi bsa = new BukkitServerUtils();
     private static final JSONParser parser = new JSONParser();
+    private static final Gson gson = new Gson();
 
     /**
      * <h1>Parse UUID String of Player </h1>
@@ -75,7 +77,8 @@ public class MojangUtils implements MojangApi {
         // else
         // ping mojang for uuid and place it into the cache
         try {
-            uuid = parseUUID(((JsonObject) parser.parse(Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + username).asString().getBody())).get("id").toString());
+            JsonObject jsonObject = new JsonParser().parse(Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + username).asString().getBody()).getAsJsonObject();
+            uuid = parseUUID(jsonObject.get("id").toString());
             UUIDCache.put(username, uuid);
             return uuid;
         } catch (Exception ignored) {
@@ -103,7 +106,9 @@ public class MojangUtils implements MojangApi {
      * <h1>Get Name from prev names</h1>
      *
      * @param uniqueID
+     *
      * @return
+     *
      * @throws UnirestException
      */
     @Override
@@ -113,7 +118,7 @@ public class MojangUtils implements MojangApi {
                                .map(Map.Entry::getKey)
                                .findFirst()
                                .orElse(null);
-        if (name == null){
+        if (name == null) {
             JsonNode body = Unirest.get("https://api.mojang.com/user/profiles/" + uniqueID + "/names")
                                    .asJson()
                                    .getBody();
@@ -129,6 +134,7 @@ public class MojangUtils implements MojangApi {
      * get uuid from username
      *
      * @param username
+     *
      * @return
      */
     @Override
@@ -151,6 +157,7 @@ public class MojangUtils implements MojangApi {
      * get uuid from offlineplayer
      *
      * @param p
+     *
      * @return
      */
     @Override
@@ -171,6 +178,7 @@ public class MojangUtils implements MojangApi {
      * get uuid from player Object
      *
      * @param p
+     *
      * @return
      */
     @Override
