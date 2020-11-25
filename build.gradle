@@ -7,7 +7,7 @@ apply plugin: 'maven-publish'
 apply from: 'env.gradle'
 
 group = 'uk.co.breadhub'
-version = '1.1_b5'
+version = '1.1_b6'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
