@@ -16,6 +16,19 @@ public class BukkitServerUtils implements BukkitServerApi {
     private final boolean minecraft17 = Bukkit.getServer().getVersion().contains("1.7"),
             minecraft16 = Bukkit.getServer().getVersion().contains("1.6"),
             minecraft15 = Bukkit.getServer().getVersion().contains("1.5");
+    private static Method method;
+    private static boolean useReflection;
+
+
+    static {
+        try {
+            method = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
+            useReflection = method.getReturnType() == Player[].class;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public double getVersion() {
@@ -31,33 +44,34 @@ public class BukkitServerUtils implements BukkitServerApi {
     @Override
     public Collection<? extends Player> getOnlinePlayers() {
         try {
-            final Method method = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
-            if (method.getReturnType() != Player[].class) {
+            if (!useReflection) {
                 return Bukkit.getOnlinePlayers();
-            }
-            else {
-                return Arrays.asList((Player[]) method.invoke(null));
+            } else {
+                Player[] playersArray = (Player[]) method.invoke(null);
+                return Arrays.asList(playersArray);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return Collections.emptyList();
         }
-        return Collections.emptyList();
     }
 
-    public static OfflinePlayer[] getOfflinePlayers() {
+
+    @Override
+    public Collection<? extends OfflinePlayer> getOfflinePlayers() {
         try {
-            Method method = Bukkit.class.getDeclaredMethod("getOfflinePlayers");
-            if (method.getReturnType() != OfflinePlayer[].class) {
-                return Bukkit.getOfflinePlayers();
+            if (!useReflection) {
+                return Arrays.asList(Bukkit.getOfflinePlayers());
+            } else {
+                OfflinePlayer[] playersArray = (OfflinePlayer[]) method.invoke(null);
+                return Arrays.asList(playersArray);
             }
-            else {
-                return (OfflinePlayer[]) method.invoke(null);
-            }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            return Collections.emptyList();
         }
-        return null;
     }
+
 
     @Override
     public OfflinePlayer getOfflinePlayerByUUID(UUID uniqueID) {
@@ -122,7 +136,7 @@ public class BukkitServerUtils implements BukkitServerApi {
         final Player[] player = {null};
 
         try {
-            Arrays.stream(Objects.requireNonNull(getOfflinePlayers())).forEach(oplayer -> {
+            getOfflinePlayers().forEach(oplayer -> {
                 if (oplayer.getName().toLowerCase().contains(playerstr.toLowerCase())) {
                     player[0] = oplayer.getPlayer();
                 }

@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public interface BukkitServerApi {
 
+    Collection<? extends OfflinePlayer> getOfflinePlayers();
+
     /**
      * get OfflinePlayer object passing in uuid
      *
@@ -26,11 +28,6 @@ public interface BukkitServerApi {
      */
     OfflinePlayer getOfflinePlayerByName(String name);
 
-    /**
-     * Get OnlinePlayers
-     *
-     * @return
-     */
     Collection<? extends Player> getOnlinePlayers();
 
     /**
