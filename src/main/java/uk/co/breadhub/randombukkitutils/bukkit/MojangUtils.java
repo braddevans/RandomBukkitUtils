@@ -1,6 +1,7 @@
 package uk.co.breadhub.randombukkitutils.bukkit;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mashape.unirest.http.JsonNode;
@@ -119,11 +120,9 @@ public class MojangUtils implements MojangApi {
                                .findFirst()
                                .orElse(null);
         if (name == null) {
-            JsonNode body = Unirest.get("https://api.mojang.com/user/profiles/" + uniqueID + "/names")
-                                   .asJson()
-                                   .getBody();
-            JSONArray names = body.getArray();
-            JsonObject object = (JsonObject) names.get(0);
+            //note: names at array id 0 will always be the current name
+            JsonArray names = new JsonParser().parse(Unirest.get("https://api.mojang.com/user/profiles/" + uniqueID + "/names").asString().getBody()).getAsJsonArray();
+            JsonObject object = names.get(0).getAsJsonObject();
             name = object.get("name").toString();
             UUIDCache.put(name, uniqueID);
         }
