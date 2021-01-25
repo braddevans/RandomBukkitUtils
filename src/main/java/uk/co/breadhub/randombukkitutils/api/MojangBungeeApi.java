@@ -7,16 +7,10 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
-public interface MojangApi {
+public interface MojangBungeeApi {
     UUID parseUUID(final String s);
-
-    HashMap<String, UUID> getUUIDCache();
-
-    String getPlayerFromUUID(UUID uniqueID) throws UnirestException;
 
     UUID getUUIDOfUsername(String username);
 
-    UUID getUUIDfromOfflinePlayer(OfflinePlayer p);
-
-    UUID getUUIDfromPlayer(Player p);
+    String getPlayerFromUUID(UUID uniqueID);
 }

@@ -1,21 +1,17 @@
 package uk.co.breadhub.randombukkitutils.bukkit;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.json.JSONArray;
 import org.json.simple.parser.JSONParser;
 import uk.co.breadhub.randombukkitutils.api.BukkitServerApi;
 import uk.co.breadhub.randombukkitutils.api.MojangApi;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class MojangUtils implements MojangApi {
@@ -60,7 +56,7 @@ public class MojangUtils implements MojangApi {
      * @return
      */
     @Override
-    public UUID getUUIDOfUsername(final String username) {
+    public UUID getUUIDOfUsername(String username) {
 
         // check if fake player
         if (username.contains("[") || username.contains("]")) {
@@ -78,8 +74,8 @@ public class MojangUtils implements MojangApi {
         // else
         // ping mojang for uuid and place it into the cache
         try {
-            JsonObject jsonObject = new JsonParser().parse(Unirest.get("https://api.mojang.com/users/profiles/minecraft/" + username).asString().getBody()).getAsJsonObject();
-            uuid = parseUUID(jsonObject.get("id").toString());
+            JsonObject jsonObject = new JsonParser().parse(Unirest.get("https://mcapi.breadhub.co.uk/api/name/" + username).asString().getBody()).getAsJsonObject();
+            uuid = parseUUID(jsonObject.get("uuid").toString());
             UUIDCache.put(username, uuid);
             return uuid;
         } catch (Exception ex) {
@@ -114,42 +110,14 @@ public class MojangUtils implements MojangApi {
      */
     @Override
     public String getPlayerFromUUID(UUID uniqueID) throws UnirestException {
-        String name = UUIDCache.entrySet().stream()
-                               .filter(e -> e.getValue().equals(uniqueID))
-                               .map(Map.Entry::getKey)
-                               .findFirst()
-                               .orElse(null);
-        if (name == null) {
-            //note: names at array id 0 will always be the current name
-            JsonArray names = new JsonParser().parse(Unirest.get("https://api.mojang.com/user/profiles/" + uniqueID + "/names").asString().getBody()).getAsJsonArray();
-            JsonObject object = names.get(0).getAsJsonObject();
-            name = object.get("name").toString();
-            UUIDCache.put(name, uniqueID);
-        }
-        return name;
-    }
+        String name = "";
 
-    /**
-     * get uuid from username
-     *
-     * @param username
-     *
-     * @return
-     */
-    @Override
-    public UUID getUUID(String username) {
-        UUID uuid = UUIDCache.get(username);
-        if (uuid != null) {
-            UUIDCache.put(username, uuid);
-            return uuid;
-        }
-        try {
-            uuid = parseUUID(getUUIDOfUsername(username).toString());
-            UUIDCache.put(username, uuid);
-            return uuid;
-        } catch (Exception ignored) {
-        }
-        return null;
+        //note: names at array id 0 will always be the current name
+        JsonObject profile = new JsonParser().parse(Unirest.get("https://mcapi.breadhub.co.uk/api/uuid/" + uniqueID).asString().getBody()).getAsJsonObject();
+        name = profile.get("name").toString();
+        UUIDCache.put(name, uniqueID);
+
+        return name;
     }
 
     /**
@@ -160,16 +128,16 @@ public class MojangUtils implements MojangApi {
      * @return
      */
     @Override
-    public UUID getUUID(OfflinePlayer p) {
+    public UUID getUUIDfromOfflinePlayer(OfflinePlayer p) {
         if (bsa.getVersion() >= 1.7) {
             try {
                 return (p.getUniqueId());
             } catch (NoSuchMethodError e) {
-                return getUUID(p.getName());
+                return getUUIDOfUsername(p.getName());
             }
         }
         else {
-            return getUUID(p.getName());
+            return getUUIDOfUsername(p.getName());
         }
     }
 
@@ -181,16 +149,16 @@ public class MojangUtils implements MojangApi {
      * @return
      */
     @Override
-    public UUID getUUID(Player p) {
+    public UUID getUUIDfromPlayer(Player p) {
         if (bsa.getVersion() >= 1.7) {
             try {
                 return (p.getUniqueId());
             } catch (NoSuchMethodError e) {
-                return getUUID(p.getName());
+                return getUUIDOfUsername(p.getName());
             }
         }
         else {
-            return getUUID(p.getName());
+            return getUUIDOfUsername(p.getName());
         }
     }
 }
